@@ -15,9 +15,24 @@ exports.load = function(req, res, next, quizId){
 
 // GET /quizes
 exports.index = function(req, res) {
-  models.Quiz.findAll().then(function(quizes){
-    res.render('quizes/index', {quizes:quizes});
-  }).catch(function(error){ next(error); });
+
+  var search = (req.query.search || null);
+  console.log("SEARCH: " + search);
+
+  if (search === null) {
+    models.Quiz.findAll().then(function(quizes){
+      res.render('quizes/index', {quizes:quizes});
+    }).catch(function(error){ next(error); });
+  } else {
+    search = '%' + search.replace(" ", "%") + '%';
+
+    models.Quiz.findAll({where: ["pregunta like ?", search]}).then(
+      function(quizes){
+        res.render('quizes/index', {quizes:quizes});
+      }).catch(function(error){ next(error); });
+  }
+
+
 };
 
 // GET /quizes/:id
